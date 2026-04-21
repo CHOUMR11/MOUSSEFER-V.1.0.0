@@ -1,0 +1,17 @@
+package com.moussefer.reservation;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableScheduling
+@EnableSchedulerLock(defaultLockAtMostFor = "PT2M")
+public class ReservationServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ReservationServiceApplication.class, args);
+    }
+}

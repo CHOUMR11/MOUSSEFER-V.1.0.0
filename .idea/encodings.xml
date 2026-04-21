@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$USER_HOME$/Desktop/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/admin-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/analytics-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/auth-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/avis-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/banner-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/chat-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/config-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/demande-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/loyalty-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/moussefer-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/notification-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/payment-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/reservation-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/service-registry/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/station-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/trajet-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/user-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/v15/voyage-service/src/main/java" charset="UTF-8" />
+  </component>
+</project>

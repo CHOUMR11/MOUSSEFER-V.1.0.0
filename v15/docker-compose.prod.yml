@@ -1,0 +1,441 @@
+version: '3.9'
+
+# ======================================================================
+# MOUSSEFER — Production Override Docker Compose
+# ======================================================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ======================================================================
+
+services:
+
+  # ==================== INFRASTRUCTURE ====================
+
+  zookeeper:
+    restart: always
+
+  kafka:
+    restart: always
+    environment:
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+
+  kafka-ui:
+    restart: always
+
+  redis:
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 2gb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio:
+    restart: always
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ==================== BASES DE DONNÉES (xxx_db, root/1234) ====================
+
+  mysql-auth:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-user:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-trajet:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: trajet_db
+      MYSQL_USER: trajet_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-reservation:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: reservation_db
+      MYSQL_USER: resa_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-payment:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: payment_db
+      MYSQL_USER: pay_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-notification:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: notif_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-chat:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: chat_db
+      MYSQL_USER: chat_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-voyage:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: voyage_db
+      MYSQL_USER: voyage_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-demande:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: demande_db
+      MYSQL_USER: demande_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-avis:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: avis_db
+      MYSQL_USER: avis_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-station:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: station_db
+      MYSQL_USER: station_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-analytics:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: analytics_db
+      MYSQL_USER: analytics_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-admin:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: admin_db
+      MYSQL_USER: admin_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-loyalty:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: loyalty_db
+      MYSQL_USER: loyalty_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-banner:
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: banner_db
+      MYSQL_USER: banner_svc
+      MYSQL_PASSWORD: "1234"
+    command: --max_connections=200 --default-storage-engine=InnoDB --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ==================== SERVICES SPRING (17 microservices) ====================
+
+  service-registry:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC"
+
+  api-gateway:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
+    environment:
+      JAVA_OPTS: "-Xms512m -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SPRING_PROFILES_ACTIVE: "production"
+
+  auth-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
+    environment:
+      JAVA_OPTS: "-Xms512m -Xmx1g -XX:+UseG1GC"
+      SPRING_PROFILES_ACTIVE: "production"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-auth:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "auth_user"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  user-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-user:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "user_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  trajet-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-trajet:3306/trajet_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "trajet_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  reservation-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-reservation:3306/reservation_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "resa_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  payment-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-payment:3306/payment_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "pay_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  notification-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-notification:3306/notification_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "notif_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  chat-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.5', memory: 512M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-chat:3306/chat_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "chat_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  voyage-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-voyage:3306/voyage_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "voyage_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  demande-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-demande:3306/demande_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "demande_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  avis-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-avis:3306/avis_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "avis_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  station-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-station:3306/station_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "station_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  analytics-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-analytics:3306/analytics_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "analytics_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  admin-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-admin:3306/admin_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "admin_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  loyalty-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-loyalty:3306/loyalty_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "loyalty_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+
+  banner-service:
+    restart: always
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+        reservations: { cpus: '0.25', memory: 256M }
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-banner:3306/banner_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "banner_svc"
+      SPRING_DATASOURCE_PASSWORD: "1234"
