@@ -1,0 +1,242 @@
+[
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Sousse",
+    "pricePerSeat": 13.50,
+    "distanceKm": 140,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Sfax",
+    "pricePerSeat": 22.00,
+    "distanceKm": 270,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Bizerte",
+    "pricePerSeat": 6.00,
+    "distanceKm": 65,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Nabeul",
+    "pricePerSeat": 5.50,
+    "distanceKm": 70,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Hammamet",
+    "pricePerSeat": 5.00,
+    "distanceKm": 65,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Kairouan",
+    "pricePerSeat": 13.00,
+    "distanceKm": 155,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Monastir",
+    "pricePerSeat": 14.00,
+    "distanceKm": 165,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Mahdia",
+    "pricePerSeat": 16.00,
+    "distanceKm": 205,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Gabès",
+    "pricePerSeat": 32.00,
+    "distanceKm": 405,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Médenine",
+    "pricePerSeat": 38.00,
+    "distanceKm": 485,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Tataouine",
+    "pricePerSeat": 42.00,
+    "distanceKm": 540,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Djerba",
+    "pricePerSeat": 40.00,
+    "distanceKm": 520,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Kasserine",
+    "pricePerSeat": 20.00,
+    "distanceKm": 290,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Béja",
+    "pricePerSeat": 8.00,
+    "distanceKm": 105,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Jendouba",
+    "pricePerSeat": 12.50,
+    "distanceKm": 160,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Le Kef",
+    "pricePerSeat": 14.00,
+    "distanceKm": 170,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Siliana",
+    "pricePerSeat": 11.00,
+    "distanceKm": 130,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Zaghouan",
+    "pricePerSeat": 4.50,
+    "distanceKm": 55,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Tozeur",
+    "pricePerSeat": 34.00,
+    "distanceKm": 450,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Tunis",
+    "arrivalCity": "Gafsa",
+    "pricePerSeat": 26.00,
+    "distanceKm": 350,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Sousse",
+    "arrivalCity": "Sfax",
+    "pricePerSeat": 10.00,
+    "distanceKm": 130,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Sousse",
+    "arrivalCity": "Monastir",
+    "pricePerSeat": 2.00,
+    "distanceKm": 25,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Sousse",
+    "arrivalCity": "Mahdia",
+    "pricePerSeat": 4.50,
+    "distanceKm": 65,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Sousse",
+    "arrivalCity": "Kairouan",
+    "pricePerSeat": 5.00,
+    "distanceKm": 60,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Sfax",
+    "arrivalCity": "Gabès",
+    "pricePerSeat": 10.00,
+    "distanceKm": 135,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Gabès",
+    "arrivalCity": "Médenine",
+    "pricePerSeat": 6.00,
+    "distanceKm": 80,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Gabès",
+    "arrivalCity": "Djerba",
+    "pricePerSeat": 8.50,
+    "distanceKm": 115,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Médenine",
+    "arrivalCity": "Tataouine",
+    "pricePerSeat": 4.00,
+    "distanceKm": 50,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Gafsa",
+    "arrivalCity": "Tozeur",
+    "pricePerSeat": 8.00,
+    "distanceKm": 95,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  },
+  {
+    "departureCity": "Kairouan",
+    "arrivalCity": "Kasserine",
+    "pricePerSeat": 11.00,
+    "distanceKm": 130,
+    "effectiveDate": "2026-01-01",
+    "source": "MINISTERE_TRANSPORT_CIRC_2026_01"
+  }
+]

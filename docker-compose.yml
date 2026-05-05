@@ -1,0 +1,768 @@
+version: '3.9'
+
+networks:
+  moussefer-net:
+    driver: bridge
+
+volumes:
+  mysql-auth:
+  mysql-user:
+  mysql-trajet:
+  mysql-reservation:
+  mysql-payment:
+  mysql-notification:
+  mysql-chat:
+  mysql-voyage:
+  mysql-demande:
+  mysql-avis:
+  mysql-station:
+  mysql-analytics:
+  mysql-admin:
+  mysql-loyalty:
+  mysql-banner:
+  redis-data:
+  kafka-data:
+  zookeeper-data:
+  minio-data:
+
+services:
+
+  # ─────────────────────────── INFRASTRUCTURE ────────────────────────────
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: moussefer-zookeeper
+    networks: [moussefer-net]
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: moussefer-kafka
+    networks: [moussefer-net]
+    depends_on: [zookeeper]
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: moussefer-kafka-ui
+    networks: [moussefer-net]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "9090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: moussefer
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: moussefer-redis
+    networks: [moussefer-net]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
+    container_name: moussefer-minio
+    networks: [moussefer-net]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────── PER-SERVICE DATABASES (hardcoded 1234) ─────────────────────────
+
+  mysql-auth:
+    image: mysql:8.3
+    container_name: moussefer-mysql-auth
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-auth:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-user:
+    image: mysql:8.3
+    container_name: moussefer-mysql-user
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-user:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-trajet:
+    image: mysql:8.3
+    container_name: moussefer-mysql-trajet
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: trajet_db
+      MYSQL_USER: trajet_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-trajet:/var/lib/mysql
+    ports:
+      - "3308:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-reservation:
+    image: mysql:8.3
+    container_name: moussefer-mysql-reservation
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: reservation_db
+      MYSQL_USER: resa_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-reservation:/var/lib/mysql
+    ports:
+      - "3309:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-payment:
+    image: mysql:8.3
+    container_name: moussefer-mysql-payment
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: payment_db
+      MYSQL_USER: pay_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-payment:/var/lib/mysql
+    ports:
+      - "3310:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-notification:
+    image: mysql:8.3
+    container_name: moussefer-mysql-notif
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: notif_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-notification:/var/lib/mysql
+    ports:
+      - "3311:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-chat:
+    image: mysql:8.3
+    container_name: moussefer-mysql-chat
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: chat_db
+      MYSQL_USER: chat_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-chat:/var/lib/mysql
+    ports:
+      - "3312:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-voyage:
+    image: mysql:8.3
+    container_name: moussefer-mysql-voyage
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: voyage_db
+      MYSQL_USER: voyage_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-voyage:/var/lib/mysql
+    ports:
+      - "3313:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-demande:
+    image: mysql:8.3
+    container_name: moussefer-mysql-demande
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: demande_db
+      MYSQL_USER: demande_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-demande:/var/lib/mysql
+    ports:
+      - "3314:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-avis:
+    image: mysql:8.3
+    container_name: moussefer-mysql-avis
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: avis_db
+      MYSQL_USER: avis_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-avis:/var/lib/mysql
+    ports:
+      - "3315:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────── ADDITIONAL DATABASES (hardcoded 1234) ─────────────────────────────────
+
+  mysql-station:
+    image: mysql:8.3
+    container_name: moussefer-mysql-station
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: station_db
+      MYSQL_USER: station_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-station:/var/lib/mysql
+    ports:
+      - "3321:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-analytics:
+    image: mysql:8.3
+    container_name: moussefer-mysql-analytics
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: analytics_db
+      MYSQL_USER: analytics_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-analytics:/var/lib/mysql
+    ports:
+      - "3322:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-admin:
+    image: mysql:8.3
+    container_name: moussefer-mysql-admin
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: admin_db
+      MYSQL_USER: admin_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-admin:/var/lib/mysql
+    ports:
+      - "3323:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-loyalty:
+    image: mysql:8.3
+    container_name: moussefer-mysql-loyalty
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: loyalty_db
+      MYSQL_USER: loyalty_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-loyalty:/var/lib/mysql
+    ports:
+      - "3324:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-banner:
+    image: mysql:8.3
+    container_name: moussefer-mysql-banner
+    networks: [moussefer-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: banner_db
+      MYSQL_USER: banner_svc
+      MYSQL_PASSWORD: "1234"
+    volumes:
+      - mysql-banner:/var/lib/mysql
+    ports:
+      - "3325:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────── SPRING SERVICES (hardcoded DB passwords) ──────────────────────────────
+
+  service-registry:
+    build: ./service-registry
+    container_name: moussefer-registry
+    networks: [moussefer-net]
+    ports:
+      - "8761:8761"
+    environment:
+      EUREKA_PASSWORD: ${EUREKA_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: moussefer-gateway
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      SWAGGER_ENABLED: ${SWAGGER_ENABLED}
+
+  auth-service:
+    build: ./auth-service
+    container_name: moussefer-auth
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-auth:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-auth:3306/auth_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: auth_user
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+      KAFKA_BOOTSTRAP: kafka:29092
+      USER_SERVICE_URL: http://user-service:8082
+
+  user-service:
+    build: ./user-service
+    container_name: moussefer-user
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-user:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-user:3306/user_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: user_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: user-documents
+
+  trajet-service:
+    build: ./trajet-service
+    container_name: moussefer-trajet
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-trajet:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-trajet:3306/trajet_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: trajet_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+
+  reservation-service:
+    build: ./reservation-service
+    container_name: moussefer-reservation
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-reservation:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-reservation:3306/reservation_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: resa_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      DRIVER_RESPONSE_TIMEOUT_MINUTES: 15
+      DRIVER_REMINDER_MINUTES: 5
+      ADMIN_NOTIFICATION_MINUTES: 8
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      TRAJET_SERVICE_URL: http://trajet-service:8083
+      PAYMENT_SERVICE_URL: http://payment-service:8085
+
+  payment-service:
+    build: ./payment-service
+    container_name: moussefer-payment
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-payment:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-payment:3306/payment_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: pay_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      RESERVATION_SERVICE_URL: http://reservation-service:8084
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: invoices
+      MINIO_ENABLED: "true"
+
+  notification-service:
+    build: ./notification-service
+    container_name: moussefer-notification
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-notification:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-notification:3306/notification_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: notif_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      MAIL_HOST: ${MAIL_HOST:-smtp.mailtrap.io}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      FCM_SERVER_KEY: ${FCM_SERVER_KEY:-placeholder}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      USER_SERVICE_URL: http://user-service:8082
+      DEMANDE_SERVICE_URL: http://demande-service:8089
+      ADMIN_USER_ID: ${ADMIN_USER_ID:-admin-uuid}
+
+  chat-service:
+    build: ./chat-service
+    container_name: moussefer-chat
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-chat:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-chat:3306/chat_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: chat_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      JWT_SECRET: ${JWT_SECRET}
+      WEBSOCKET_ALLOWED_ORIGINS: ${WEBSOCKET_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:4200}
+
+  voyage-service:
+    build: ./voyage-service
+    container_name: moussefer-voyage
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-voyage:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-voyage:3306/voyage_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: voyage_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: invoices
+      MINIO_ENABLED: "true"
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      PAYMENT_SERVICE_URL: http://payment-service:8085
+      USER_SERVICE_URL: http://user-service:8082
+
+  demande-service:
+    build: ./demande-service
+    container_name: moussefer-demande
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-demande:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-demande:3306/demande_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: demande_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      DEMANDE_THRESHOLD: 4
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      TRAJET_SERVICE_URL: http://trajet-service:8083
+
+  avis-service:
+    build: ./avis-service
+    container_name: moussefer-avis
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-avis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-avis:3306/avis_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin
+      SPRING_DATASOURCE_USERNAME: avis_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      RESERVATION_SERVICE_URL: http://reservation-service:8084
+
+  station-service:
+    build: ./station-service
+    container_name: moussefer-station
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-station:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-station:3306/station_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: station_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+
+  analytics-service:
+    build: ./analytics-service
+    container_name: moussefer-analytics
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-analytics:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-analytics:3306/analytics_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: analytics_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+
+  admin-service:
+    build: ./admin-service
+    container_name: moussefer-admin
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-admin:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-admin:3306/admin_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: admin_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      USER_SERVICE_URL: http://user-service:8082
+      TRAJET_SERVICE_URL: http://trajet-service:8083
+      RESERVATION_SERVICE_URL: http://reservation-service:8084
+      PAYMENT_SERVICE_URL: http://payment-service:8085
+      BANNER_SERVICE_URL: http://banner-service:8094
+      ANALYTICS_SERVICE_URL: http://analytics-service:8092
+      NOTIFICATION_SERVICE_URL: http://notification-service:8086
+      AUTH_SERVICE_URL: http://auth-service:8081
+
+  loyalty-service:
+    build: ./loyalty-service
+    container_name: moussefer-loyalty
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-loyalty:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-loyalty:3306/loyalty_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: loyalty_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      KAFKA_BOOTSTRAP: kafka:29092
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+
+  banner-service:
+    build: ./banner-service
+    container_name: moussefer-banner
+    networks: [moussefer-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-banner:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-banner:3306/banner_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: banner_svc
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      EUREKA_URI: http://eureka:${EUREKA_PASSWORD}@service-registry:8761/eureka
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}

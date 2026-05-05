@@ -1,0 +1,137 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment & Secrets
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Environment files (NEVER commit!)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+*.iws
+*.ipr
+
+# Build & Dependencies
+target/
+build/
+.gradle/
+out/
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.backup
+release.properties
+dependency-reduced-pom.xml
+
+# Node (if frontend in same repo)
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+.next/
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# OS
+Thumbs.db
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Logs
+*.log
+logs/
+log/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.class
+*.o
+*.so
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+
+# Project specific
+target/
+.classpath
+.project
+.settings/
+bin/
+.factorypath
+
+# IDE generated files
+.eclipse/
+nbproject/
+.sublime-project
+.sublime-workspace
+
+# IntelliJ
+*.iml
+*.iws
+*.ipr
+.idea/
+out/
+
+# Sensitive data (backup)
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.jks
+secrets.json
+credentials.json
+
+# Database backups
+backups/
+*.sql
+*.sql.gz
+*.dump
+
+# Large files
+*.iso
+*.dmg
+*.exe
+
+# Application runtime
+.mvn/wrapper/maven-wrapper.jar
+
+# Package lock files (optional, depends on team preference)
+# pom.xml.lock
+# package-lock.json
+# yarn.lock
+
+# Generated code
+generated/
+*-generated.java
+
+# Checksum files
+.DS_Store
+Thumbs.db

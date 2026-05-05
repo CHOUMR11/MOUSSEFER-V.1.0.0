@@ -1,0 +1,285 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - name: CircuitBreaker
+              args:
+                name: authService
+                fallbackUri: forward:/fallback/auth
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**, /api/v1/drivers/**, /api/v1/passengers/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+            - name: CircuitBreaker
+              args:
+                name: userService
+                fallbackUri: forward:/fallback/user
+
+        - id: trajet-service
+          uri: lb://trajet-service
+          predicates:
+            - Path=/api/v1/trajets/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 30
+                redis-rate-limiter.burstCapacity: 60
+            - name: CircuitBreaker
+              args:
+                name: trajetService
+                fallbackUri: forward:/fallback/trajet
+
+        - id: reservation-service
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/v1/reservations/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+            - name: CircuitBreaker
+              args:
+                name: reservationService
+                fallbackUri: forward:/fallback/reservation
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - name: CircuitBreaker
+              args:
+                name: paymentService
+                fallbackUri: forward:/fallback/payment
+
+        - id: chat-service-ws
+          uri: lb://chat-service
+          predicates:
+            - Path=/ws/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: chatService
+                fallbackUri: forward:/fallback/chat
+
+        - id: chat-service-rest
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/v1/chat/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: chatService
+                fallbackUri: forward:/fallback/chat
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: notificationService
+                fallbackUri: forward:/fallback/notification
+
+        - id: voyage-service
+          uri: lb://voyage-service
+          predicates:
+            - Path=/api/v1/voyages/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: voyageService
+                fallbackUri: forward:/fallback/voyage
+
+        - id: demande-service
+          uri: lb://demande-service
+          predicates:
+            - Path=/api/v1/demandes/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: demandeService
+                fallbackUri: forward:/fallback/demande
+
+        - id: avis-service
+          uri: lb://avis-service
+          predicates:
+            - Path=/api/v1/avis/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: avisService
+                fallbackUri: forward:/fallback/avis
+
+        - id: station-service
+          uri: lb://station-service
+          predicates:
+            - Path=/api/v1/stations/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: stationService
+                fallbackUri: forward:/fallback/station
+
+        - id: analytics-service
+          uri: lb://analytics-service
+          predicates:
+            - Path=/api/v1/analytics/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: analyticsService
+                fallbackUri: forward:/fallback/analytics
+
+        - id: admin-service
+          uri: lb://admin-service
+          predicates:
+            - Path=/api/v1/admin/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: adminService
+                fallbackUri: forward:/fallback/admin
+
+        - id: loyalty-service
+          uri: lb://loyalty-service
+          predicates:
+            - Path=/api/v1/loyalty/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loyaltyService
+                fallbackUri: forward:/fallback/loyalty
+
+        - id: banner-service
+          uri: lb://banner-service
+          predicates:
+            - Path=/api/v1/banners/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: bannerService
+                fallbackUri: forward:/fallback/banner
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: 6379
+      password: ${SPRING_REDIS_PASSWORD:redis123}      # 🔐 Plus de chaîne vide
+      timeout: 5s
+
+  main:
+    web-application-type: reactive
+
+jwt:
+  secret: ${JWT_SECRET}                         # 🔐 Plus de secret en clair
+
+internal:
+  api-key: ${INTERNAL_API_KEY:dev-internal-secret}              # 🔐 Plus de valeur par défaut
+
+security:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200}
+    allowed-headers: "Authorization,Content-Type,X-User-Id,X-User-Email,X-User-Role,X-Admin-Role,X-Refresh-Token,X-Internal-Secret,X-Correlation-Id"
+    allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+
+eureka:
+  client:
+    # L’URL complète peut être fournie via la variable d’environnement EUREKA_URI,
+    # ex: http://eureka:password@registry:8761/eureka/
+    service-url:
+      eureka.client.service-url.defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.uuid}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.moussefer.gateway: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+    path: /swagger-ui.html
+    urls:
+      - name: Auth Service
+        url: /api/v1/auth/v3/api-docs
+      - name: User Service
+        url: /api/v1/users/v3/api-docs
+      - name: Trajet Service
+        url: /api/v1/trajets/v3/api-docs
+      - name: Reservation Service
+        url: /api/v1/reservations/v3/api-docs
+      - name: Payment Service
+        url: /api/v1/payments/v3/api-docs
+      - name: Voyage Service
+        url: /api/v1/voyages/v3/api-docs
+      - name: Notification Service
+        url: /api/v1/notifications/v3/api-docs
+      - name: Chat Service
+        url: /api/v1/chat/v3/api-docs
+      - name: Demande Service
+        url: /api/v1/demandes/v3/api-docs
+      - name: Avis Service
+        url: /api/v1/avis/v3/api-docs
+      - name: Station Service
+        url: /api/v1/stations/v3/api-docs
+      - name: Analytics Service
+        url: /api/v1/analytics/v3/api-docs
+      - name: Admin Service
+        url: /api/v1/admin/v3/api-docs
+      - name: Loyalty Service
+        url: /api/v1/loyalty/v3/api-docs
+      - name: Banner Service
+        url: /api/v1/banners/v3/api-docs

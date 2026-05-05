@@ -1,0 +1,31 @@
+# src/test/resources/application-test.yml
+jwt:
+  secret: test-jwt-secret-that-is-256bits-long-change-me-1234567890
+
+internal:
+  api-key: test-internal-key
+
+eureka:
+  client:
+    enabled: false
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: test-route
+          uri: http://localhost:1   # URI fictive, le filtre JWT interceptera avant
+          predicates:
+            - Path=/test/**
+  data:
+    redis:
+      password: testredis
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

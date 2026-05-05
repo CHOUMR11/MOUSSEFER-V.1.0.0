@@ -1,0 +1,87 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: voyage-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  datasource:
+    # ✅ Paramètres MySQL complets
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3313/voyage_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&authenticationPlugins=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin&defaultAuthenticationPlugin=com.mysql.cj.protocol.a.authentication.MysqlNativePasswordPlugin}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_WITH_YOUR_STRIPE_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_WITH_YOUR_WEBHOOK_SECRET}
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:invoices}
+  voyage-images-bucket: ${MINIO_VOYAGE_IMAGES_BUCKET:voyage-images}
+  enabled: true
+
+internal:
+  api-key: ${INTERNAL_API_KEY:dev-internal-secret-key-change-in-production}
+
+payment:
+  service:
+    url: ${PAYMENT_SERVICE_URL:http://payment-service:8085}
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://user-service:8082}
+
+eureka:
+  client:
+    service-url:
+      # ✅ URL Eureka compatible Docker
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+springdoc:
+  api-docs:
+    # ✅ Désactivé par défaut (sécurité)
+    enabled: ${SWAGGER_ENABLED:false}
+    path: /api/v1/voyages/v3/api-docs
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
+    path: /swagger-ui.html
+
+resilience4j:
+  retry:
+    instances:
+      paymentService:
+        maxAttempts: 3
+        waitDuration: 1s
+        retryExceptions:
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+      userService:
+        maxAttempts: 3
+        waitDuration: 1s

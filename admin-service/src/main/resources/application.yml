@@ -1,0 +1,89 @@
+server:
+  port: 8093
+
+spring:
+  application:
+    name: admin-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3323/admin_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    hikari:
+      maximum-pool-size: 10
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
+  jpa:
+    hibernate:
+      ddl-auto: update        # ✅ Flyway manages schema
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://user-service:8082}
+trajet:
+  service:
+    url: ${TRAJET_SERVICE_URL:http://trajet-service:8083}
+reservation:
+  service:
+    url: ${RESERVATION_SERVICE_URL:http://reservation-service:8084}
+payment:
+  service:
+    url: ${PAYMENT_SERVICE_URL:http://payment-service:8085}
+banner:
+  service:
+    url: ${BANNER_SERVICE_URL:http://banner-service:8094}
+analytics:
+  service:
+    url: ${ANALYTICS_SERVICE_URL:http://analytics-service:8092}
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:http://notification-service:8086}
+
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://auth-service:8081}
+
+# V23 — added for AdminStationsProxyController (frontend → /api/v1/admin/stations)
+station:
+  service:
+    url: ${STATION_SERVICE_URL:http://station-service:8091}
+
+internal:
+  api-key: ${INTERNAL_API_KEY:dev-internal-key-change-in-prod}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://eureka:${EUREKA_PASSWORD:eureka123}@localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:true}
+    path: /api/v1/admin/v3/api-docs
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+    path: /swagger-ui.html
